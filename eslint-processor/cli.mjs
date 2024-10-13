@@ -1,8 +1,7 @@
+#!/usr/bin/env node
 import { parseArgs } from "node:util";
 import { createReadStream } from "node:fs";
 import bfj from "bfj";
-// Use the eslint JSON formatter (and silent mode if you're running through yarn!)
-// $ yarn --silent eslint -f json > eslint-report.json
 
 const {
   positionals
