@@ -7,6 +7,10 @@
   },
   "bin": "cli.mjs",
   "license": "UNLICENSED",
+  "scripts": {
+    "eslint": "eslint -f json -o eslint-report.json",
+    "start": "./cli.mjs eslint-report.json"
+  },
   "devDependencies": {
     "@eslint/js": "^9.12.0",
     "eslint": "^9.12.0",
