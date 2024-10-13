@@ -5,11 +5,11 @@
     "name": "James Cheese",
     "email": "trust@tr00st.co.uk"
   },
-  "bin": "cli.mjs",
+  "bin": "index.mjs",
   "license": "UNLICENSED",
   "scripts": {
     "eslint": "eslint -f json -o eslint-report.json",
-    "start": "./cli.mjs eslint-report.json"
+    "start": "./index.mjs eslint-report.json"
   },
   "devDependencies": {
     "@eslint/js": "^9.12.0",
