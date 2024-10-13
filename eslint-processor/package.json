@@ -1,0 +1,10 @@
+{
+  "name": "eslint-processor",
+  "version": "1.0.0",
+  "author": {
+    "name": "James Cheese",
+    "email": "trust@tr00st.co.uk"
+  },
+  "main": "index.js",
+  "license": "UNLICENSED"
+}

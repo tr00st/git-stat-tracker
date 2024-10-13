@@ -14,3 +14,6 @@ Processor will be specific to the fetcher...ish - eg: tool for pulling metric nu
 Storer should be a write-once job - take name-value metrics and dump them in the write place. Make sure it's idempotent(ish) too - think REST PUT semantics.
 Fetcher/reporter should be once-per-metric/purpose. A generic "code coverage over time" graph, or something like that.
 
+# License
+
+Pending.
