@@ -15,11 +15,20 @@ useful scripts. So far, that includes:
 
 * gst-eslint-processor - a tool for parsing eslint JSON reports and summarising the total number of failures.
 
+# What sort of metrics?
+
+The initial scope of this project is kept pretty specific, so it's more likely to actually produce something... Metrics should be:
+
+* Applies to a whole directory or repository - these are summary metrics, not specific file analyses. The obvious workaround here at the moment is storing full reports as a "bonus feature". Reports are probably going to be stored by firing in a full URI for where the report is stored.
+* Applies to a specific revision - revision / commit date+time will be used to track metrics over time.
+* Can be easily graphed - currently expecting single numbers and percentages - we're primarily looking for a short string/numeric value that can be processed into something that can go onto a chart. Things like passed/failed test numbers, code coverage, lines of code, percentages of particular languages, etc.
+
 # Components
 
 * Collector - eslint/jest/etc - tool will output a set of metrics (and maybe a report to store)
 * Processor - tool that'll take the output of one of the above and normalize them into a set of numbers and/or documents to be stored
-* Storer - tool that'll store the metrics/docs against the given commit name. probably sharded/indexed with commit date/repo slug as well/
+    * gst-eslint-processor - Parses eslint JSON output files and produces a set if summarised metrics
+* Storer - tool that'll store the metrics/docs against the given commit name. probably sharded/indexed with commit date/repo slug as well? also does the job of collation - collects together various metrics and builds them into a single payload before uploading them.
 * Fetcher - tool that'll pull the metrics back out and structure them in a reportable form
 * Reporter - tool that'll take the formatted output and show something useful - probably a big ol' "this metric over time" graph
 * Comparer - tool that'll fail a build (or just return a useful error) if a given commit has made something worse with what changes it's made
