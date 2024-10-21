@@ -42,6 +42,9 @@ The initial scope of this project is kept pretty specific, so it's more likely t
 * Fetcher/reporter should be once-per-metric/purpose. A generic "code coverage over time" graph, or something like that.
 * Comparer will probably need some awareness of the SCM tool in use. Might end up just going with a "have we got all the upstream changes merged in?" as a requirment, fail if that doesn't pass, and fail if there's any new errors. This might be where things get more complicated too. Ideally, we'd want to compare which errors were introduced in which files. Something kinda similar (but executed very differently) to https://github.com/paleite/eslint-plugin-diff. Maybe we could take where new errors/warnings/failures were introduced? Finding a baseline commit and checking for an increase is probably going to be more practical. Maybe a "get a unified+stable list of problems and diff them" approach?
 
+# TODO
+* Identifying new problems created on a branch that's being PRed
+
 # License
 
 Pending.
