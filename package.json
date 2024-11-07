@@ -13,6 +13,9 @@
   "private": true,
   "scripts": {
     "eslint": "eslint -f json -o eslint-report.json",
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "clean": "rm -r dist/",
     "test": "NODE_OPTIONS='$NODE_OPTIONS --experimental-vm-modules' npx jest"
   },
   "dependencies": {
