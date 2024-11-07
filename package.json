@@ -5,20 +5,25 @@
     "name": "James Cheese",
     "email": "trust@tr00st.co.uk"
   },
+  "type": "module",
   "description": "A toolchain for storing code metrics against Git revisions",
   "main": "index.js",
   "repository": "https://github.com/tr00st/git-stat-tracker.git",
   "license": "UNLICENSED",
   "private": true,
   "scripts": {
-    "eslint": "eslint -f json -o eslint-report.json"
+    "eslint": "eslint -f json -o eslint-report.json",
+    "test": "NODE_OPTIONS='$NODE_OPTIONS --experimental-vm-modules' npx jest"
   },
   "dependencies": {
     "bfj": "^9.0.2",
     "yargs": "^17.7.2"
   },
   "devDependencies": {
-    "eslint": "^9.14.0"
+    "@types/node": "^22.9.0",
+    "@types/yargs": "^17.0.33",
+    "eslint": "^9.14.0",
+    "typescript": "^5.6.3"
   },
   "packageManager": "yarn@4.5.1+sha512.341db9396b6e289fecc30cd7ab3af65060e05ebff4b3b47547b278b9e67b08f485ecd8c79006b405446262142c7a38154445ef7f17c1d5d1de7d90bf9ce7054d"
 }
