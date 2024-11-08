@@ -47,4 +47,4 @@ The initial scope of this project is kept pretty specific, so it's more likely t
 
 # License
 
-Pending.
+MIT
