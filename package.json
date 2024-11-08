@@ -9,7 +9,7 @@
   "description": "A toolchain for storing code metrics against Git revisions",
   "main": "index.js",
   "repository": "https://github.com/tr00st/git-stat-tracker.git",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "private": true,
   "scripts": {
     "eslint": "eslint -f json -o eslint-report.json",
