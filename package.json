@@ -19,6 +19,8 @@
     "test": "NODE_OPTIONS='$NODE_OPTIONS --experimental-vm-modules' npx jest"
   },
   "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.675.0",
+    "@aws-sdk/lib-dynamodb": "^3.675.0",
     "bfj": "^9.0.2",
     "yargs": "^17.7.2"
   },
