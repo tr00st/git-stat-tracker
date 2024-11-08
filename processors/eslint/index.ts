@@ -25,7 +25,7 @@ export const builder = (yargs: yargs.Argv) => {
     });
 };
 
-interface EslintReportEntry {
+export interface EslintReportEntry {
   errorCount: number;
   warningCount: number;
 }
