@@ -30,7 +30,7 @@ interface EslintReportEntry {
   warningCount: number;
 }
 
-export const sumMetricCounts = async (dataStream: ReadableStream<EslintReportEntry>) => {
+export const sumMetricCounts = async (dataStream: ReadableStream<EslintReportEntry> | EslintReportEntry[]) => {
   const output = {
     totalErrors: 0,
     totalWarnings: 0
