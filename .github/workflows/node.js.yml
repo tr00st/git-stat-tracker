@@ -37,7 +37,10 @@ jobs:
         files: |
           artifacts/junit.xml
         check_name: Tests - ${{ matrix.node-version }}
-    - uses: actions/upload-artifact@v4
+    - name: Report code coverage
+      uses: zgosalvez/github-actions-report-lcov@v3
       with:
-        name: code-coverage
-        path: artifacts/coverage/lcov-report
+        coverage-files: artifacts/coverage/lcov.info
+        artifact-name: code-coverage-report-${{ matrix.node-version }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        update-comment: true
