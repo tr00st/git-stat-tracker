@@ -36,3 +36,8 @@ jobs:
       with:
         files: |
           artifacts/junit.xml
+        check_name: Tests - ${{ matrix.node-version }}
+    - uses: actions/upload-artifact@v4
+      with:
+        name: code-coverage
+        path: artifacts/coverage/lcov-report

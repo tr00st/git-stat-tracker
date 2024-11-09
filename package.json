@@ -17,7 +17,7 @@
     "watch": "tsc --watch",
     "clean": "rm -r dist/",
     "test": "npx jest",
-    "test:ci": "JEST_JUNIT_OUTPUT_DIR='./artifacts' npx jest  --ci --reporters=default --reporters=jest-junit"
+    "test:ci": "JEST_JUNIT_OUTPUT_DIR='./artifacts' npx jest  --ci --reporters=default --reporters=jest-junit --coverage --coverageDirectory=artifacts/coverage"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.675.0",
