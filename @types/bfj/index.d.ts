@@ -1,14 +1,12 @@
-import { Readable } from "stream"
-
 export function walk(stream: NodeJS.ReadableStream, options: {
     bufferLength?: number,
     ndjson?: boolean,
     stringChunkSize?: number,
     yieldRate?: number
-}) : Promise<any>;
+}) : Promise<unknown>;
 export function match (
     stream: NodeJS.ReadableStream,
-    selector: RegExp | string | ((key: string, value: any, depth: number) => boolean),
+    selector: RegExp | string | ((key: string, value: unknown, depth: number) => boolean),
     options?: {
         minDepth?: number;
         numbers?: boolean;
@@ -18,20 +16,20 @@ export function match (
         bufferLength?: number;
         highWaterMark?: number;
     }
-) : NodeJS.ReadableStream<any>;
+) : NodeJS.ReadableStream<unknown>;
 export async function parse(
     stream: NodeJS.ReadableStream,
     options?: {
-        reviver?: (key: string, value: any) => any;
+        reviver?: (key: string, value: unknown) => unknown;
         yieldRate?: number;
         ndjson?: boolean;
     }
-): Promise<any>;
+): Promise<unknown>;
 
 export function unpipe(
-    callback: (error: Error | null, result: any) => void,
+    callback: (error: Error | null, result: unknown) => void,
     options?: {
-        reviver?: (key: string, value: any) => any;
+        reviver?: (key: string, value: unknown) => unknown;
         discard?: number;
         yieldRate?: number;
     }
@@ -40,14 +38,14 @@ export function unpipe(
 export function read(
     path: string,
     options?: {
-        reviver?: (key: string, value: any) => any;
+        reviver?: (key: string, value: unknown) => unknown;
         yieldRate?: number;
     }
-): Promise<any>;
+): Promise<unknown>;
 
     
 export function eventify(
-    data: any,
+    data: unknown,
     options?: {
         promises?: 'resolve' | 'ignore';
         buffers?: 'toString' | 'ignore';
@@ -59,7 +57,7 @@ export function eventify(
 ): NodeJS.EventEmitter;
 
 export function streamify(
-    data: any,
+    data: unknown,
     options?: {
         space?: string | number;
         promises?: 'resolve' | 'ignore';
@@ -74,7 +72,7 @@ export function streamify(
 ): NodeJS.ReadableStream;
 
 export function stringify(
-    data: any,
+    data: unknown,
     options?: {
         space?: string | number;
         promises?: 'resolve' | 'ignore';
@@ -90,7 +88,7 @@ export function stringify(
 
 export function write(
     path: string,
-    data: any,
+    data: unknown,
     options?: {
         space?: string | number;
         promises?: 'resolve' | 'ignore';
