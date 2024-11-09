@@ -37,8 +37,8 @@ jobs:
         files: |
           artifacts/junit.xml
         check_name: Tests - ${{ matrix.node-version }}
-    - name: LCOV Summary
-      uses: pre-history/lcov-summary-action@lcov-summary-action-v0.4.1
+    - name: Coverage Report
+      uses: danhunsaker/clover-reporter-action@v0.2.17-clover
       with:
-        lcov-file: artifacts/coverage/lcov.info
-        comment-on-pr: true
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        clover-file: ./artifacts/coverage/clover.xml
