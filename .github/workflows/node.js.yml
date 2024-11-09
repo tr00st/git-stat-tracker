@@ -51,7 +51,7 @@ jobs:
     - name: Upload coverage report artifact
       uses: actions/upload-artifact@v4
       with:
-        name: CoverageReport # Artifact name        
+        name: CoverageReport-${{ matrix.node-version }} # Artifact name        
         path: artifacts/coveragereport # Directory containing files to upload
     - name: Add comment to PR # Only applicable if 'MarkdownSummaryGithub' or one of the other Markdown report types is generated
       if: github.event_name == 'pull_request'
