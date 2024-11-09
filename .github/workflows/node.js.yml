@@ -37,12 +37,10 @@ jobs:
         files: |
           artifacts/junit.xml
         check_name: Tests - ${{ matrix.node-version }}
+    - name: LCOV Summary
+      uses: pre-history/lcov-summary-action@v0.4.1
     - name: Setup LCOV
       uses: hrishikesh-kadam/setup-lcov@v1
-    - name: Report code coverage
-      uses: zgosalvez/github-actions-report-lcov@v3
       with:
-        coverage-files: artifacts/coverage/lcov.info
-        artifact-name: code-coverage-report-${{ matrix.node-version }}
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        update-comment: true
+        lcov-file: artifacts/coverage/lcov.info
+        comment-on-pr: true
