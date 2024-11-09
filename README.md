@@ -15,6 +15,15 @@ useful scripts. So far, that includes:
 
 * gst-eslint-processor - a tool for parsing eslint JSON reports and summarising the total number of failures.
 
+# Development
+
+* Install fnm: https://github.com/Schniz/fnm
+* Use fnm to grab the Node LTS: `fnm install --lts`, then `fnm use [version]`
+* Enable corepack: `corepack enable`
+* Install dependencies: `yarn install`
+* Build: `yarn build`
+* Test: `yarn test`
+
 # What sort of metrics?
 
 The initial scope of this project is kept pretty specific, so it's more likely to actually produce something... Metrics should be:
