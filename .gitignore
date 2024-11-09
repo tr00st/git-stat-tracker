@@ -1,5 +1,6 @@
 node_modules
 eslint-report.json
+artifacts
 
 # Logs
 logs

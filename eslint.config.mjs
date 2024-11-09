@@ -6,7 +6,3 @@ export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
 );
-// export default [
-//   {languageOptions: { globals: globals.node }},
-//   pluginJs.configs.recommended,
-// ];
