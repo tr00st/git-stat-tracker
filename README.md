@@ -26,11 +26,21 @@ useful scripts. So far, that includes:
 
 # What sort of metrics?
 
-The initial scope of this project is kept pretty specific, so it's more likely to actually produce something... Metrics should be:
+Two general categories are needed - summary metrics and annotations:
 
-* Applies to a whole directory or repository - these are summary metrics, not specific file analyses. The obvious workaround here at the moment is storing full reports as a "bonus feature". Reports are probably going to be stored by firing in a full URI for where the report is stored.
-* Applies to a specific revision - revision / commit date+time will be used to track metrics over time.
-* Can be easily graphed - currently expecting single numbers and percentages - we're primarily looking for a short string/numeric value that can be processed into something that can go onto a chart. Things like passed/failed test numbers, code coverage, lines of code, percentages of particular languages, etc.
+* Summary Metrics: Apply to a whole directory or repository. For example, "32 tests ran, 0 failures, 3 skipped" would be stored as three Summary Metrics - test runs, test failures, and test skips.
+  * Can often be easily graphed - currently expecting single numbers and percentages - we're primarily looking for a short string/numeric value that can be processed into something that can go onto a chart. Things like passed/failed test numbers, code coverage, lines of code, percentages of particular languages, etc.
+  * Should be pretty widely supported on various output formats - they make just as much sense in a CSV file, a structured JSON report, or a quick text summary printed to the console.
+  * Easy to compare over time, but can only provide some general trends - "less things broke on this commit than the last one" is less useful than "we fixed these three but broke this one"
+* Annotations: Apply to a range of characters on a specific line in a specific file. Things like "you missed a semicolon at the end of line 43 in terribleCode.js".
+  * Mainly suitable for in-depth reports. You can arguably summarise them, but actually viewing the data would be a pretty in-depth view with a lot of content.
+  * Useful for providing actionable insights like "you caused this specific new problem". This will be a bit more difficult to achieve though, as we'll need to uniquely identify what's new and what'e existing.
+  * *Should we provide tools for summarising? Basic things like "count the instances of the annotation types" should be pretty easy to achieve, but most of those numbers are probably exported from the tools we'd get annotations from*
+  * *Can we fingerprint these to help identify what's changed between reports? Hashing the content that's annotated, plus any "hashable attributes"? Might want to spec that somewhere, so we don't try and use line numbers as a unique characteristic...*
+
+All metrics will:
+
+* Apply to a specific revision - revision / commit date+time will be used to track metrics over time.
 
 # Components
 
