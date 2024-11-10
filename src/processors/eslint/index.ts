@@ -3,6 +3,7 @@ import { createReadStream } from "node:fs";
 import promises from 'fs/promises'
 import bfj from "bfj";
 import yargs from "yargs";
+import { KnownRecordTypes, SummaryRecord } from "../../types/reportRecords";
 
 export const command = "eslint <inputFile>";
 export const describe = "parses the results from inputFile";
@@ -72,7 +73,14 @@ export const handler = async (argv: any) => { // TODO - fix that any
     const outputStream = await promises.open(outputFile, 'w');
     switch (outputFormat) {
       case "json": {
-        await outputStream.write(JSON.stringify(output));
+        const convertedOutput : SummaryRecord[] = [{
+          type: KnownRecordTypes.TotalLintWarnings,
+          value: output.totalWarnings
+        }, {
+          type: KnownRecordTypes.TotalLintErrors,
+          value: output.totalErrors
+        }];
+        await outputStream.write(JSON.stringify(convertedOutput));
         break;
       }
       case "csv": {

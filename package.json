@@ -5,24 +5,26 @@
     "name": "James Cheese",
     "email": "trust@tr00st.co.uk"
   },
-  "type": "module",
   "description": "A toolchain for storing code metrics against Git revisions",
   "main": "src/index.ts",
   "repository": "https://github.com/tr00st/git-stat-tracker.git",
   "license": "MIT",
-  "private": true,
+  "bin": "dist/index.js",
   "scripts": {
     "eslint": "eslint -f json -o eslint-report.json",
     "build": "tsc",
     "watch": "tsc --watch",
     "clean": "rm -r dist/",
     "test": "npx jest",
-    "test:ci": "JEST_JUNIT_OUTPUT_DIR='./artifacts' npx jest  --ci --reporters=default --reporters=jest-junit --coverage --coverageDirectory=artifacts/coverage"
+    "test:ci": "JEST_JUNIT_OUTPUT_DIR='./artifacts' npx jest  --ci --reporters=default --reporters=jest-junit --coverage --coverageDirectory=artifacts/coverage",
+    "prestart": "npm run build",
+    "postinstall": "npm run build"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.675.0",
     "@aws-sdk/lib-dynamodb": "^3.675.0",
     "bfj": "^9.0.2",
+    "ts-node": "^10.9.2",
     "yargs": "^17.7.2"
   },
   "devDependencies": {
