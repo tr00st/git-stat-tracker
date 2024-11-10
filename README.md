@@ -24,6 +24,14 @@ useful scripts. So far, that includes:
 * Build: `npm run build`
 * Test: `npm run test`
 
+# Release process
+
+```
+npm version patch
+git push --tags
+# Then create a release for the new tag on GitHub
+```
+
 # What sort of metrics?
 
 Two general categories are needed - summary metrics and annotations:
