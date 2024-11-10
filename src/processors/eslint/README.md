@@ -2,9 +2,9 @@
 
 ## Usage
 
-Use the eslint JSON formatter (and silent mode if you're running through yarn!)
+Use the eslint JSON formatter
 
 ```
-$ yarn --silent eslint -f json -o eslint-report.json
+$ npm run --silent eslint -f json -o eslint-report.json
 $ npx git-stat-tracker/eslint-processor eslint-report.json
 ```

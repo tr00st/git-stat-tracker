@@ -20,9 +20,9 @@ useful scripts. So far, that includes:
 * Install fnm: https://github.com/Schniz/fnm
 * Use fnm to grab the Node LTS: `fnm install --lts`, then `fnm use [version]`
 * Enable corepack: `corepack enable`
-* Install dependencies: `yarn install`
-* Build: `yarn build`
-* Test: `yarn test`
+* Install dependencies: `npm install`
+* Build: `npm run build`
+* Test: `npm run test`
 
 # What sort of metrics?
 
