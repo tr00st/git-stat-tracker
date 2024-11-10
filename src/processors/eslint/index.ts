@@ -8,6 +8,17 @@ import { KnownRecordTypes, SummaryRecord } from "../../types/reportRecords";
 export const command = "eslint <inputFile>";
 export const describe = "parses the results from inputFile";
 
+export enum OutputFormats {
+  Json = "json",
+  Csv = "csv"
+};
+
+export interface CliArguments {
+  inputFile?: string,
+  outputFormat?: OutputFormats,
+  outputFile?: string
+};
+
 export const builder = (yargs: yargs.Argv) => {
   return yargs.positional('inputFile', {
       description: 'Specify the file to be read - must be an EsLint produced JSON report file',
@@ -17,7 +28,7 @@ export const builder = (yargs: yargs.Argv) => {
       alias: 'f',
       type: 'string',
       description: 'Specify the output format to be used when writing to file',
-      choices: ['json', 'csv']
+      choices: Object.values(OutputFormats)
     })
     .option('outputFile', {
       alias: 'o',
@@ -45,7 +56,7 @@ export const sumMetricCounts = async (dataStream: ReadableStream<EslintReportEnt
   return output;
 };
 
-export const handler = async (argv: any) => { // TODO - fix that any
+export const handler = async (argv: CliArguments) : Promise<void> => { // TODO - fix that any
   if (!argv.inputFile) {
     console.error("Input filename required");
     process.exit(1);
@@ -62,7 +73,7 @@ export const handler = async (argv: any) => { // TODO - fix that any
   const fileStream = createReadStream(targetFilename);
 
   // Use bfj.match to extract the desired elements from the stream
-  const dataStream = bfj.match(fileStream, (key: string, value: any, depth: number) => (depth === 1 && typeof(key) === "number"), {});
+  const dataStream = bfj.match(fileStream, (key: string, value: unknown, depth: number) => (depth === 1 && typeof(key) === "number"), {});
 
   const output = await sumMetricCounts(dataStream);
 
