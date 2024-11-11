@@ -3,9 +3,10 @@ import yargs from 'yargs'
 import { hideBin } from 'yargs/helpers'
 import * as gstEslintProcessor from './processors/eslint/index.js';
 
-yargs(hideBin(process.argv))
+await yargs(hideBin(process.argv))
   .command(gstEslintProcessor)
   .demandCommand()
   .help("help", "Shows usage instructions")
-  .parseAsync();
+  .exitProcess(false)
+  .parse();
 

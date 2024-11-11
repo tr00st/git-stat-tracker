@@ -1,7 +1,6 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, UpdateCommand } from "@aws-sdk/lib-dynamodb";
-import yargs from 'yargs'
-import { hideBin } from 'yargs/helpers'
+import { Argv } from 'yargs'
 
 export const command = "store dynamodb <inputFile>";
 export const describe = "stores results in an AWS DynamoDB database";
@@ -12,7 +11,7 @@ interface Arguments {
   timestamp: string;
 }
 
-export const builder = (yargs: yargs.Argv) => {
+export const builder = (yargs: Argv) => {
   return yargs.positional('inputFile', {
       description: 'Specify the file to be read - must be an EsLint produced JSON report file',
       type: 'string'

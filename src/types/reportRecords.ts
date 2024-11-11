@@ -44,3 +44,4 @@ export type AnnotationRecord = {
  * @see {@link AnnotationRecord}
  */
 export type ReportRecord = SummaryRecord | AnnotationRecord;
+

@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 import { createReadStream } from "node:fs";
 import promises from 'fs/promises'
+/// <reference path='bfj.d.ts' />
 import bfj from "bfj";
-import yargs from "yargs";
-import { KnownRecordTypes, SummaryRecord } from "../../types/reportRecords";
+import { Argv } from "yargs";
+import { KnownRecordTypes, SummaryRecord } from "../../types/reportRecords.js";
+import { duplexPair, Writable } from "node:stream";
 
 export const command = "eslint <inputFile>";
 export const describe = "parses the results from inputFile";
@@ -16,10 +18,10 @@ export enum OutputFormats {
 export interface CliArguments {
   inputFile?: string,
   outputFormat?: OutputFormats,
-  outputFile?: string
+  outputFile: string
 };
 
-export const builder = (yargs: yargs.Argv) => {
+export const builder = (yargs: Argv) => {
   return yargs.positional('inputFile', {
       description: 'Specify the file to be read - must be an EsLint produced JSON report file',
       type: 'string'
@@ -27,13 +29,14 @@ export const builder = (yargs: yargs.Argv) => {
     .option('outputFormat', {
       alias: 'f',
       type: 'string',
-      description: 'Specify the output format to be used when writing to file',
+      description: 'Specify the output format to be used when writing to file. Must be included if outputFile is set.',
       choices: Object.values(OutputFormats)
     })
     .option('outputFile', {
       alias: 'o',
       type: 'string',
-      description: 'Specify the filename where you want the output to be written'
+      description: 'Specify the filename where you want the output to be written. Use "-" or omit to write to stdout.',
+      default: '-'
     });
 };
 
@@ -64,7 +67,7 @@ export const handler = async (argv: CliArguments) : Promise<void> => { // TODO -
   const outputFile = argv.outputFile;
   const outputFormat = argv.outputFormat;
 
-  if (Boolean(outputFile) !== Boolean(outputFormat)) {
+  if (outputFile !== '-' && !outputFormat) {
     console.error("Output format and file must be specified together or not at all!");
     process.exit(1);
   }
@@ -77,11 +80,30 @@ export const handler = async (argv: CliArguments) : Promise<void> => { // TODO -
 
   const output = await sumMetricCounts(dataStream);
 
-  console.log(`Total Lint Errors: ${output.totalErrors}`);
-  console.log(`Total Lint Warnings: ${output.totalWarnings}`);
+  console.error("Input file successfully scanned.")
+  console.error(`Total Lint Errors: ${output.totalErrors}`);
+  console.error(`Total Lint Warnings: ${output.totalWarnings}`);
 
-  if (outputFile) {
-    const outputStream = await promises.open(outputFile, 'w');
+  if (outputFormat) {
+    // We create a duplex here to flexibly pass output. Anything written to outputStream goes out via outputPipeline
+    // to the desired output (file or stdout).
+    const [outputStream, outputPipeline] = duplexPair();
+
+    let outputFileHandle : promises.FileHandle | null = null;
+    if (outputFile !== "-") {
+      outputFileHandle = await promises.open(outputFile, 'w');
+      outputPipeline.pipe(outputFileHandle.createWriteStream());
+      outputPipeline.pipe(process.stdout);
+    } else {
+      const stdOutWriter = new Writable({
+        write: (chunk, encoding, next) => {
+          process.stdout.write(chunk);
+        }
+      })
+      console.error("Writing to stdout");
+      outputPipeline.pipe(stdOutWriter);
+    }
+
     switch (outputFormat) {
       case "json": {
         const convertedOutput : SummaryRecord[] = [{
@@ -100,7 +122,13 @@ export const handler = async (argv: CliArguments) : Promise<void> => { // TODO -
         break;
       }
     }
-    await outputStream.close();
+    
+    outputStream.end();
+    outputPipeline.end();
+    if (outputFileHandle) {
+      await outputFileHandle.sync();
+      await outputFileHandle.close();
+    }
   }
 };
 

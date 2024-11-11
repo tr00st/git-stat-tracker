@@ -1,5 +1,5 @@
-import {describe, expect, test} from '@jest/globals'
-import { EslintReportEntry, sumMetricCounts } from './index'
+import {describe, expect, test} from 'vitest'
+import { EslintReportEntry, sumMetricCounts } from './index.js'
 
 describe('sumMetricCounts', () => {
     test('handles empty report', async () => {
