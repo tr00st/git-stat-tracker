@@ -174,7 +174,6 @@ export const handler = async (argv: CliArguments) : Promise<void> => { // TODO -
           jsonStream.on('error', () => {reject();});
           jsonStream.on('dataError', () => {reject();});
           jsonStream.pipe(outputStream);
-          console.log('did thing');
         }));
         break;
       }
