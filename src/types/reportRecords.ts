@@ -2,12 +2,23 @@
  * Enum containing known record types - use one of these if you want intelligent handling of metrics.
  */
 export enum KnownRecordTypes {
-    TotalLintWarnings = "TotalLintWarnings", // Total number of warnings in the repo that were raised by the linter for this commit
-    TotalLintErrors = "TotalLintErrors", // Total number of errors in the repo that were raised by the linter for this commit
-    TotalTestsRan = "TotalTestsRan", // The total number of tests that ran for the repo in this commit.
-    TotalTestsPassed = "TotalTestsPassed", // The total number of tests that passed for the repo in this commit.
-    TotalTestsFailed = "TotalTestsFailed", // The total number of tests that failed for the repo in this commit.
-    TotalTestsSkipped = "TotalTestsSkipped" // The total number of tests that skipped for the repo in this commit.
+    /** Total number of warnings in the repo that were raised by the linter for this commit */
+    TotalLintWarnings = "TotalLintWarnings",
+    /** Total number of errors in the repo that were raised by the linter for this commit */
+    TotalLintErrors = "TotalLintErrors",
+    /** Represents a single warning raised by a linter. */
+    LintWarning = "LintWarning",
+    /** Represents a single error raised by a linter. */
+    LintError = "LintError",
+    
+    /** The total number of tests that ran for the repo in this commit. */
+    TotalTestsRan = "TotalTestsRan",
+    /** The total number of tests that passed for the repo in this commit. */
+    TotalTestsPassed = "TotalTestsPassed",
+    /** The total number of tests that failed for the repo in this commit. */
+    TotalTestsFailed = "TotalTestsFailed",
+    /** The total number of tests that skipped for the repo in this commit. */
+    TotalTestsSkipped = "TotalTestsSkipped"
 }
 
 /**
@@ -19,16 +30,19 @@ export type RecordType = KnownRecordTypes | string;
 /**
  * A record describing a repository-wide metric on a single commit.
  */
-export type SummaryRecord = {
+export type SummaryRecord = NumericSummaryRecord;
+export type NumericSummaryRecord = {
     type : RecordType;
-    value : unknown;
+    category : "Summary"
+    subcategory : "Numeric"
+    value : number
 };
-export type NumericSummaryRecord = SummaryRecord & { value : number };
 
 /**
  * A record describing an annotation against a specific section of code.
  */
 export type AnnotationRecord = {
+    category : "Annotation",
     type : RecordType;
     file : string;
     startLine : number;
