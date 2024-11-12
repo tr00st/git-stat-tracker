@@ -175,6 +175,7 @@ export const handler = async (argv: CliArguments) : Promise<void> => { // TODO -
           jsonStream.on('dataError', () => {reject();});
           jsonStream.pipe(outputStream);
         }));
+        process.stdout.write("\n"); // HACK - add a newline so tie output doesn't get overwritten on CLI
         break;
       }
       case "csv": {

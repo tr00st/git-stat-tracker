@@ -7,6 +7,4 @@ await yargs(hideBin(process.argv))
   .command(gstEslintProcessor)
   .demandCommand()
   .help("help", "Shows usage instructions")
-  .exitProcess(false)
   .parse();
-
