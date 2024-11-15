@@ -1,6 +1,7 @@
 import {describe, expect, test} from 'vitest'
-import { EslintReportFileEntry, sumMetricCounts } from './index.js'
+import { sumMetricCounts } from './index.js'
 import { KnownRecordTypes, ReportRecord } from 'types/reportRecords.js';
+import { EslintReportFileEntry } from './types.js';
 
 describe('sumMetricCounts', () => {
     test('handles empty report', async () => {
