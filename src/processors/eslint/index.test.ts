@@ -1,6 +1,6 @@
 import {describe, expect, test} from 'vitest'
 import { sumMetricCounts } from './index.js'
-import { KnownRecordTypes, ReportRecord } from 'types/index.js';
+import { KnownRecordTypes } from 'types/index.js';
 import { EslintMessageSeverity, EslintReportFileEntry } from './types.js';
 import { collapseAsyncGenerator } from './utils.js';
 
