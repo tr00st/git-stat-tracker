@@ -1,4 +1,4 @@
-import { KnownRecordTypes, ReportRecord } from "types/reportRecords.js";
+import { KnownRecordTypes, ReportRecord } from "types/index.js";
 import { OutputFormatter } from "./types.js";
 import { Writable } from "stream";
 

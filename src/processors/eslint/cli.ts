@@ -38,7 +38,7 @@ export const builder = (yargs: Argv) => {
 };
 
 
-export const handler = async (argv: CliArguments) : Promise<void> => { // TODO - fix that any
+export const handler = async (argv: CliArguments) : Promise<void> => {
   if (!argv.inputFile) {
     console.error("Input filename required");
     process.exit(1);
@@ -68,71 +68,6 @@ export const handler = async (argv: CliArguments) : Promise<void> => { // TODO -
     } finally {
         await writer.close();
     }
-    // We create a duplex here to flexibly pass output. Anything written to outputStream goes out via outputPipeline
-    // to the desired output (file or stdout).
-    // const [outputStream, outputPipeline] = duplexPair();
-
-    // let outputFileHandle : promises.FileHandle | null = null;
-    // if (outputFile !== "-") {
-    //   outputFileHandle = await promises.open(outputFile, 'w');
-    //   outputPipeline.pipe(outputFileHandle.createWriteStream());
-    //   outputPipeline.pipe(process.stdout);
-    // } else {
-    //   const stdOutWriter = new Writable({
-    //     write: (chunk, encoding, next) => {
-    //       process.stdout.write(chunk);
-    //       next();
-    //     }
-    //   })
-    //   console.error("Writing to stdout");
-    //   outputPipeline.pipe(stdOutWriter);
-    // }
-
-
-    // const outputGenerator = sumMetricCounts(dataStream, argv.includeMessages);
-    // switch (outputFormat) {
-    //   case "json": {
-    //     const items = await collapseAsyncGenerator(outputGenerator);
-    //     await (new Promise<void>((resolve, reject) => {
-    //       const jsonStream = bfj.streamify(items);
-        
-    //       jsonStream.on('end', () => {
-    //         resolve();
-    //       });
-    //       jsonStream.on('error', () => {reject();});
-    //       jsonStream.on('dataError', () => {reject();});
-    //       jsonStream.pipe(outputStream);
-    //     }));
-    //     process.stdout.write("\n"); // HACK - add a newline so tie output doesn't get overwritten on CLI
-    //     break;
-    //   }
-    //   case "csv": {
-    //     let totalWarnings : number = 0;
-    //     let totalErrors : number = 0;
-    //     for await (const entry of outputGenerator) {
-    //       if (entry.category === "Summary") {
-    //         if (entry.subcategory === "Numeric") {
-    //           if (entry.type === KnownRecordTypes.TotalLintErrors) {
-    //             totalErrors = entry.value;
-    //           } else if (entry.type === KnownRecordTypes.TotalLintWarnings) {
-    //             totalWarnings = entry.value;
-    //           }
-    //         }
-    //       }
-    //     }
-        
-    //     await outputStream.write(`totalErrors,${totalErrors}\n`);
-    //     await outputStream.write(`totalWarnings,${totalWarnings}\n`);
-    //     break;
-    //   }
-    // }
-    
-    // outputStream.end();
-    // outputPipeline.end();
-    // if (outputFileHandle) {
-    //   await outputFileHandle.sync();
-    //   await outputFileHandle.close();
-    // }
   }
 };
 

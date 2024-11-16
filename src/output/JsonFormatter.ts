@@ -1,5 +1,5 @@
 import bfj from "bfj";
-import { ReportRecord } from "types/reportRecords.js";
+import { ReportRecord } from "types/index.js";
 import { OutputFormatter } from "./types.js";
 import { Writable } from "stream";
 

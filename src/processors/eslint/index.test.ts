@@ -1,7 +1,7 @@
 import {describe, expect, test} from 'vitest'
 import { sumMetricCounts } from './index.js'
-import { KnownRecordTypes, ReportRecord } from 'types/reportRecords.js';
-import { EslintReportFileEntry } from './types.js';
+import { KnownRecordTypes, ReportRecord } from 'types/index.js';
+import { EslintMessageSeverity, EslintReportFileEntry } from './types.js';
 
 describe('sumMetricCounts', () => {
     test('handles empty report', async () => {
@@ -18,6 +18,81 @@ describe('sumMetricCounts', () => {
             }, {
               type: KnownRecordTypes.TotalLintErrors,
               value: 0,
+              category: "Summary",
+              subcategory: "Numeric"
+            }
+        ]);
+    });
+    test('handles report with messages, messages are included', async () => {
+        const resultIterator = await sumMetricCounts([
+            {
+                errorCount: 1,
+                warningCount: 2,
+                filePath: 'index.js',
+                messages: [{
+                    message: 'Some dummy message',
+                    severity: EslintMessageSeverity.Warning,
+                    line: 1,
+                    column: 2,
+                    endLine: 3,
+                    endColumn: 4
+                }]
+            }
+        ], true);
+        
+        const outputs = await iteratorToArray(resultIterator);
+        
+        expect(outputs).toMatchObject([
+            {
+                category: "Annotation",
+                endCol: 4,
+                endLine: 3,
+                file: "index.js",
+                startCol: 2,
+                startLine: 1,
+                type: "LintWarning",
+                message: 'Some dummy message'
+            }, {
+              type: KnownRecordTypes.TotalLintWarnings,
+              value: 2,
+              category: "Summary",
+              subcategory: "Numeric"
+            }, {
+              type: KnownRecordTypes.TotalLintErrors,
+              value: 1,
+              category: "Summary",
+              subcategory: "Numeric"
+            },
+        ]);
+    });
+    test('handles report with messages, but messages are excluded', async () => {
+        const resultIterator = await sumMetricCounts([
+            {
+                errorCount: 1,
+                warningCount: 2,
+                filePath: 'index.js',
+                messages: [{
+                    message: 'Some dummy message',
+                    severity: EslintMessageSeverity.Warning,
+                    line: 0,
+                    column: 0,
+                    endLine: 0,
+                    endColumn: 0
+                }]
+            }
+        ], false);
+        
+        const outputs = await iteratorToArray(resultIterator);
+        
+        expect(outputs).toMatchObject([
+            {
+              type: KnownRecordTypes.TotalLintWarnings,
+              value: 2,
+              category: "Summary",
+              subcategory: "Numeric"
+            }, {
+              type: KnownRecordTypes.TotalLintErrors,
+              value: 1,
               category: "Summary",
               subcategory: "Numeric"
             }
