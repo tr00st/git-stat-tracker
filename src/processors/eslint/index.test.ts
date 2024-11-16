@@ -2,12 +2,13 @@ import {describe, expect, test} from 'vitest'
 import { sumMetricCounts } from './index.js'
 import { KnownRecordTypes, ReportRecord } from 'types/index.js';
 import { EslintMessageSeverity, EslintReportFileEntry } from './types.js';
+import { collapseAsyncGenerator } from './utils.js';
 
 describe('sumMetricCounts', () => {
     test('handles empty report', async () => {
         const resultIterator = await sumMetricCounts([], false);
         
-        const outputs = await iteratorToArray(resultIterator);
+        const outputs = await collapseAsyncGenerator(resultIterator);
         
         expect(outputs).toMatchObject([
             {
@@ -40,7 +41,7 @@ describe('sumMetricCounts', () => {
             }
         ], true);
         
-        const outputs = await iteratorToArray(resultIterator);
+        const outputs = await collapseAsyncGenerator(resultIterator);
         
         expect(outputs).toMatchObject([
             {
@@ -82,7 +83,7 @@ describe('sumMetricCounts', () => {
             }
         ], false);
         
-        const outputs = await iteratorToArray(resultIterator);
+        const outputs = await collapseAsyncGenerator(resultIterator);
         
         expect(outputs).toMatchObject([
             {
@@ -108,7 +109,7 @@ describe('sumMetricCounts', () => {
             }
         ], false);
         
-        const outputs = await iteratorToArray(resultIterator);
+        const outputs = await collapseAsyncGenerator(resultIterator);
         
         expect(outputs).toMatchObject([
             {
@@ -146,7 +147,7 @@ describe('sumMetricCounts', () => {
             },
         ], false);
 
-        const outputs = await iteratorToArray(resultIterator);
+        const outputs = await collapseAsyncGenerator(resultIterator);
         
         expect(outputs).toMatchObject([
             {
@@ -174,7 +175,7 @@ describe('sumMetricCounts', () => {
         }
 
         const resultIterator = await sumMetricCounts(entries, false);
-        const outputs = await iteratorToArray(resultIterator);
+        const outputs = await collapseAsyncGenerator(resultIterator);
         
         expect(outputs).toMatchObject([
             {
@@ -191,11 +192,3 @@ describe('sumMetricCounts', () => {
         ]);
     });
 });
-async function iteratorToArray(resultIterator: AsyncGenerator<ReportRecord>) {
-    const outputs = [];
-    for await (const result of resultIterator) {
-        outputs.push(result);
-    }
-    return outputs;
-}
-

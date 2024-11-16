@@ -1,4 +1,3 @@
-// HACK - Way to load everything into RAM...
 export async function collapseAsyncGenerator<Type>(generator: AsyncGenerator<Type>) {
     const output = [];
     for await (const item of generator) {
