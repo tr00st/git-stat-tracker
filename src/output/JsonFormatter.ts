@@ -1,21 +1,16 @@
-import bfj from "bfj";
 import { ReportRecord } from "types/index.js";
 import { OutputFormatter } from "./types.js";
 import { Writable } from "stream";
 
 export class JsonFormatter implements OutputFormatter {
-    async formatRecords(records: ReportRecord[], outputStream: Writable): Promise<void> {
-        return new Promise<void>((resolve, reject) => {
-            const jsonStream = bfj.streamify(records);
-            
-            jsonStream.on('end', () => {
-                outputStream.write('\n');
-                resolve();
-            });
-            jsonStream.on('error', reject);
-            jsonStream.on('dataError', reject);
-            
-            jsonStream.pipe(outputStream, { end: false });
-        });
+    async formatRecords(records: AsyncIterable<ReportRecord> | ReportRecord[], outputStream: Writable): Promise<void> {
+        outputStream.write("[\n");
+        let first = true;
+        for await (const record of records) {
+            if (!first) outputStream.write(",\n");
+            outputStream.write(JSON.stringify(record));
+            first = false;
+        }
+        outputStream.write("\n]\n");
     }
 }

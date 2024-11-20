@@ -8,7 +8,7 @@ const linterSeverityMap = {
     [EslintMessageSeverity.Error]: KnownRecordTypes.LintError
 }
 
-export const sumMetricCounts = async function* (dataStream: ReadableStream<EslintReportFileEntry> | EslintReportFileEntry[], includeMessages: boolean): AsyncGenerator<ReportRecord> {
+export const sumMetricCounts = async function* (dataStream: AsyncIterable<EslintReportFileEntry> | EslintReportFileEntry[], includeMessages: boolean): AsyncIterable<ReportRecord> {
     let totalErrors = 0;
     let totalWarnings = 0;
 
@@ -32,13 +32,12 @@ export const sumMetricCounts = async function* (dataStream: ReadableStream<Eslin
             }
         }
     }
-    const totalWarningsRecord: NumericSummaryRecord = {
+    yield {
         type: KnownRecordTypes.TotalLintWarnings,
         value: totalWarnings,
         category: "Summary",
         subcategory: "Numeric"
     };
-    yield totalWarningsRecord;
     yield {
         type: KnownRecordTypes.TotalLintErrors,
         value: totalErrors,

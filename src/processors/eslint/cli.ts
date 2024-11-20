@@ -1,12 +1,11 @@
 import { createReadStream } from "node:fs";
-/// <reference path='bfj.d.ts' />
-import bfj from "bfj";
 import { Argv } from "yargs";
-import { CliArguments, OutputFormats } from "./types.js";
+import { CliArguments, EslintReportFileEntry, OutputFormats } from "./types.js";
 import { sumMetricCounts } from "./index.js";
-import { collapseAsyncGenerator } from "./utils.js";
 import { FormatterFactory } from "../../output/FormatterFactory.js";
 import { FileWriter } from "../../output/FileWriter.js";
+import StreamArray from "stream-json/streamers/StreamArray.js";
+import { Transform, TransformCallback } from "node:stream";
 
 export const command = "eslint <inputFile>";
 export const describe = "parses the results from inputFile";
@@ -37,6 +36,30 @@ export const builder = (yargs: Argv) => {
         });
 };
 
+class TypedTransform<T> extends Transform {
+    constructor(options = {}) {
+        super({
+            ...options,
+            objectMode: true
+        });
+    }
+
+    _transform(chunk: { value: T }, _encoding: string, callback: TransformCallback) {
+        try {
+            const typedData: T = chunk.value;
+            this.push(typedData);
+            callback();
+        } catch (error) {
+            if (error instanceof Error) {
+                callback(error);
+            } else if (typeof error === 'string') {
+                callback(new Error(error));
+            } else {
+                callback(new Error('An unknown error occurred'));
+            }
+        }
+    }
+}
 
 export const handler = async (argv: CliArguments): Promise<void> => {
     if (!argv.inputFile) {
@@ -51,10 +74,9 @@ export const handler = async (argv: CliArguments): Promise<void> => {
     }
 
     const fileStream = createReadStream(argv.inputFile);
-
-    // Use bfj.match to extract the desired elements from the stream
-    const dataStream = bfj.match(fileStream,
-        (key: string, value: unknown, depth: number) => (depth === 1 && typeof (key) === "number"), {});
+    const pipeline = fileStream
+        .pipe(StreamArray.withParser())
+        .pipe(new TypedTransform<EslintReportFileEntry>());
 
     if (outputFormat) {
         const formatter = FormatterFactory.createFormatter(outputFormat);
@@ -62,10 +84,8 @@ export const handler = async (argv: CliArguments): Promise<void> => {
 
         try {
             await writer.open();
-            const outputGenerator = sumMetricCounts(dataStream, argv.includeMessages);
-            // HACK - Way to load everything into RAM...
-            const records = await collapseAsyncGenerator(outputGenerator);
-            await formatter.formatRecords(records, writer.getStream());
+            const output = sumMetricCounts(pipeline, argv.includeMessages);
+            await formatter.formatRecords(output, writer.getStream());
         } finally {
             await writer.close();
         }

@@ -18,7 +18,8 @@ export const builder = (yargs: Argv) => {
             alias: 'i',
             array: true,
             requiresArg: true,
-            description: 'Specify one or more files to be read - must be a JSON file produced by git-stat-tracker',
+            description: 'Specify one or more files to be read - must be a JSON file produced by git-stat-tracker. Use "-" or omit to write to stdout.',
+            default: '-',
             type: 'string'
         })
         .option('repositoryUri', {
