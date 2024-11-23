@@ -21,6 +21,11 @@ useful scripts. So far, that includes:
 
 * gst-eslint-processor - a tool for parsing eslint JSON reports and summarising the total number of failures.
 
+## Project Status
+
+This project is in early development. All internal and external APIs and CLIs are subject to massive change with no
+warning. Even the project name will probably change. The purpose probably won't, but no guarantees.
+
 ## Development
 
 * Install fnm: https://github.com/Schniz/fnm

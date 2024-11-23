@@ -17,7 +17,7 @@
     "watch": "rollup --watch",
     "clean": "rm -r dist/",
     "test": "vitest",
-    "test:ci": "vitest --reporter=default --reporter=junit --outputFile=artifacts/junit.xml --coverage --coverage.reportsDirectory=artifacts/coverage",
+    "test:ci": "vitest --reporter=default --reporter=junit --outputFile=artifacts/junit.xml --coverage",
     "prestart": "npm run build",
     "postinstall": "npm run build"
   },
