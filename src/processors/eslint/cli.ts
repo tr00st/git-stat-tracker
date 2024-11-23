@@ -1,3 +1,7 @@
+/**
+ * This module contains the CLI for the EsLint processor. Not intended for API usage.
+ * @module
+ */
 import { createReadStream } from "node:fs";
 import { Argv } from "yargs";
 import { CliArguments, EslintReportFileEntry, OutputFormats } from "./types.js";
