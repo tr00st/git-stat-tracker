@@ -9,7 +9,7 @@ const config: Config = {
   tagline: 'Not production ready...',
 
   // Set the production url of your site here
-  url: 'https://git-stat-tracker.github.io',
+  url: 'https://git-stat-tracker.tr00st.co.uk',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: '/',
