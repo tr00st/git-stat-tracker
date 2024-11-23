@@ -4,7 +4,7 @@
  * @returns The array output by the generator provided.
  * @typeParam Type The type of items yielded by the generator and contained in the output array.
  */
-export async function collapseAsyncGenerator<Type>(generator: AsyncGenerator<Type>) {
+export async function collapseAsyncGenerator<Type>(generator: AsyncIterable<Type>) {
     const output = [];
     for await (const item of generator) {
         output.push(item);

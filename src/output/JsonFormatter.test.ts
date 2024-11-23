@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { JsonFormatter } from './JsonFormatter.js';
-import { KnownRecordTypes, ReportRecord } from 'types/index.js';
+import { KnownRecordTypes, ReportRecord } from '../types/index.js';
 import { PassThrough } from 'node:stream';
 
 describe('JsonFormatter', () => {
