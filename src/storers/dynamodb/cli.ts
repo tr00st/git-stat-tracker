@@ -1,15 +1,19 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, UpdateCommand } from "@aws-sdk/lib-dynamodb";
+import { createReadStream } from "fs";
+import { TypedTransform } from "lib/util/TypedTransform.js";
+import StreamArray from "stream-json/streamers/StreamArray.js";
+import { RecordType, ReportRecord } from "types/index.js";
 import { Argv } from 'yargs'
 
-export const command = "store dynamodb <inputFile>";
+export const command = "store-dynamodb";
 export const describe = "stores results in an AWS DynamoDB database";
 
 interface Arguments {
     inputFile: string[];
     repositoryUri: string;
     commitHash: string;
-    timestamp: string;
+    timestamp: number;
 }
 
 export const builder = (yargs: Argv) => {
@@ -18,62 +22,99 @@ export const builder = (yargs: Argv) => {
             alias: 'i',
             array: true,
             requiresArg: true,
-            description: 'Specify one or more files to be read - must be a JSON file produced by git-stat-tracker. Use "-" or omit to write to stdout.',
-            default: '-',
+            description: 'Specify one or more files to be read - must be a JSON file produced by git-stat-tracker. Use "-" or omit to read from stdout.',
+            default: ['-'],
             type: 'string'
         })
         .option('repositoryUri', {
             alias: ['r', 'repository'],
             requiresArg: true,
             type: 'string',
-            description: 'The canonical URI to store this record against - changing this will disassociate from any existing records',
-            choices: ['json', 'csv']
+            description: 'The canonical URI to store this record against - changing this will disassociate from any existing records'
         })
         .option('commitHash', {
             alias: ['c', 'commit'],
             requiresArg: true,
             type: 'string',
-            description: 'Git hash (or other globally unique commit ID) to reference this record against',
-            choices: ['json', 'csv']
+            description: 'Git hash (or other globally unique commit ID) to reference this record against'
         })
         .option('timestamp', {
             alias: ['t'],
             requiresArg: true,
             type: 'string',
             description: 'Commit (or other canonical) timestamp to store this record with. Will be used for time-series reporting.',
-            choices: ['json', 'csv'],
             default: (new Date()).toISOString(),
             defaultDescription: 'the timestamp when this script was',
             coerce: Date.parse
         })
+        .demandOption(['repositoryUri', 'commitHash'], 'Please provide repositoryUri and commitHash')
 };
 
+const readRecords = async function* (filename: string) : AsyncIterable<ReportRecord> {
+    const fileStream = createReadStream(filename);
+    const pipeline = fileStream
+        .pipe(StreamArray.withParser())
+        .pipe(new TypedTransform<ReportRecord>());
 
-export const handler = async (argv: Arguments) => {
+    for await (const record of pipeline) {
+        yield record;
+    }
+}
 
+const bulkReadRecords = async function* (files: string[]) {
+    for (const file of files) {
+        for await (const record of readRecords(file)) {
+            yield record;
+        }
+    }
+}
+export const handler = async ({inputFile : inputFiles, commitHash, repositoryUri, timestamp} : Arguments) : Promise<void> => {
     const client = new DynamoDBClient({});
     const docClient = DynamoDBDocumentClient.from(client);
+    
+    const records : AsyncIterable<ReportRecord> = bulkReadRecords(inputFiles);
 
-    const metrics = {
-        ":totalLintErrors": Math.floor(Math.random() * 100),
-        ":totalLintWarnings": Math.floor(Math.random() * 100)
+    const expressionAttributeNames : Record<string, string> = {};
+    const expressionAttributeValues : Record<string, any> = {
+        ":commitTimestamp": timestamp
     };
 
-    const attributesToStore = {
-        ...metrics,
-        ":commitTimestamp": argv.timestamp
-    };
+    const updateExpressionClauses = [];
+    const bannedAttributeNames = [
+        'commitHash',
+        'repository',
+        'commitTimestamp'
+    ];
+
+    let i : number = 1;
+    for await (const record of records) {
+        if (record.category == "Summary") {
+            const attributeName = record.type;
+            if (bannedAttributeNames.includes(attributeName)) {
+                console.warn(`Banned attribute name '${attributeName}' found, skipping`);
+            }
+            // We currently only support Summary types in here.
+            const attributeNameSubstitute = `#attribute${i}`;
+            const valueNameSubstitute = `:value${i}`;
+            expressionAttributeNames[attributeNameSubstitute] = attributeName;
+            expressionAttributeValues[valueNameSubstitute] = record.value;
+            updateExpressionClauses.push(`${attributeNameSubstitute} = ${valueNameSubstitute}`)
+            i++;
+        }
+    }
+
     const timingStart = Date.now();
-
 
     const storeCommand = new UpdateCommand({
         TableName: "tr00st-repo-stats",
         Key: {
-            commitHash: argv.commitHash,
-            repository: argv.repositoryUri
+            commitHash: commitHash,
+            repository: repositoryUri
         },
-        UpdateExpression: "set commitTimestamp = :commitTimestamp, totalLintErrors = :totalLintErrors, totalLintWarnings = :totalLintWarnings",
-        ExpressionAttributeValues: attributesToStore,
+        
+        UpdateExpression: `set commitTimestamp = :commitTimestamp, ${updateExpressionClauses.join(', ')}`,
+        ExpressionAttributeNames: expressionAttributeNames,
+        ExpressionAttributeValues: expressionAttributeValues,
         ReturnValues: "ALL_NEW",
     });
 

@@ -5,11 +5,11 @@
 import { createReadStream } from "node:fs";
 import { Argv } from "yargs";
 import { CliArguments, EslintReportFileEntry, OutputFormats } from "./types.js";
-import { sumMetricCounts } from "./index.js";
-import { FormatterFactory } from "../../output/FormatterFactory.js";
-import { FileWriter } from "../../output/FileWriter.js";
+import { processReportEntries } from "./index.js";
+import { FormatterFactory } from "../../lib/output/FormatterFactory.js";
+import { FileWriter } from "../../lib/output/FileWriter.js";
 import StreamArray from "stream-json/streamers/StreamArray.js";
-import { Transform, TransformCallback } from "node:stream";
+import { TypedTransform } from "../../lib/util/TypedTransform.js";
 
 export const command = "eslint <inputFile>";
 export const describe = "parses the results from inputFile";
@@ -40,31 +40,6 @@ export const builder = (yargs: Argv) => {
         });
 };
 
-class TypedTransform<T> extends Transform {
-    constructor(options = {}) {
-        super({
-            ...options,
-            objectMode: true
-        });
-    }
-
-    _transform(chunk: { value: T }, _encoding: string, callback: TransformCallback) {
-        try {
-            const typedData: T = chunk.value;
-            this.push(typedData);
-            callback();
-        } catch (error) {
-            if (error instanceof Error) {
-                callback(error);
-            } else if (typeof error === 'string') {
-                callback(new Error(error));
-            } else {
-                callback(new Error('An unknown error occurred'));
-            }
-        }
-    }
-}
-
 export const handler = async (argv: CliArguments): Promise<void> => {
     if (!argv.inputFile) {
         console.error("Input filename required");
@@ -88,7 +63,7 @@ export const handler = async (argv: CliArguments): Promise<void> => {
 
         try {
             await writer.open();
-            const output = sumMetricCounts(pipeline, argv.includeMessages);
+            const output = processReportEntries(pipeline, argv.includeMessages);
             await formatter.formatRecords(output, writer.getStream());
         } finally {
             await writer.close();

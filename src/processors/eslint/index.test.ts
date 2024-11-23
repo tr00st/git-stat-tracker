@@ -1,12 +1,12 @@
 import {describe, expect, test} from 'vitest'
-import { sumMetricCounts } from './index.js'
+import { processReportEntries } from './index.js'
 import { KnownRecordTypes } from '../../types/index.js';
 import { EslintMessageSeverity, EslintReportFileEntry } from './types.js';
 import { collapseAsyncGenerator } from './utils.js';
 
-describe('sumMetricCounts', () => {
+describe('processReportEntries', () => {
     test('handles empty report', async () => {
-        const resultIterator = await sumMetricCounts([], false);
+        const resultIterator = await processReportEntries([], false);
         
         const outputs = await collapseAsyncGenerator(resultIterator);
         
@@ -25,7 +25,7 @@ describe('sumMetricCounts', () => {
         ]);
     });
     test('handles report with messages, messages are included', async () => {
-        const resultIterator = await sumMetricCounts([
+        const resultIterator = await processReportEntries([
             {
                 errorCount: 1,
                 warningCount: 2,
@@ -67,7 +67,7 @@ describe('sumMetricCounts', () => {
         ]);
     });
     test('handles report with messages, but messages are excluded', async () => {
-        const resultIterator = await sumMetricCounts([
+        const resultIterator = await processReportEntries([
             {
                 errorCount: 1,
                 warningCount: 2,
@@ -100,7 +100,7 @@ describe('sumMetricCounts', () => {
         ]);
     });
     test('handles one-entry report', async () => {
-        const resultIterator = await sumMetricCounts([
+        const resultIterator = await processReportEntries([
             {
                 errorCount: 1,
                 warningCount: 2,
@@ -126,7 +126,7 @@ describe('sumMetricCounts', () => {
         ]);
     });
     test('handles three-entry report', async () => {
-        const resultIterator = await sumMetricCounts([
+        const resultIterator = await processReportEntries([
             {
                 errorCount: 1,
                 warningCount: 2,
@@ -174,7 +174,7 @@ describe('sumMetricCounts', () => {
             });
         }
 
-        const resultIterator = await sumMetricCounts(entries, false);
+        const resultIterator = await processReportEntries(entries, false);
         const outputs = await collapseAsyncGenerator(resultIterator);
         
         expect(outputs).toMatchObject([

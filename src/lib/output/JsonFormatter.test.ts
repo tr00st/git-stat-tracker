@@ -1,15 +1,15 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { CsvFormatter } from './CsvFormatter.js';
-import { KnownRecordTypes, ReportRecord } from '../types/index.js';
+import { JsonFormatter } from './JsonFormatter.js';
+import { KnownRecordTypes, ReportRecord } from '../../types/index.js';
 import { PassThrough } from 'node:stream';
 
-describe('CsvFormatter', () => {
-    let formatter: CsvFormatter;// Mock the Writable stream
+describe('JsonFormatter', () => {
+    let formatter: JsonFormatter;// Mock the Writable stream
     let outputStream: PassThrough;
     let output: string;
     
     beforeEach(() => {
-        formatter = new CsvFormatter();
+        formatter = new JsonFormatter();
         outputStream = new PassThrough();
         output = '';
         outputStream.on('data', (chunk) => {
@@ -28,10 +28,11 @@ describe('CsvFormatter', () => {
         ];
 
         await formatter.formatRecords(records, outputStream);
-        expect(output).toBe(`${KnownRecordTypes.TotalLintErrors},42\n`);
+        const result = JSON.parse(output);
+        expect(result).toEqual(records);
     });
 
-    it('should ignore non-summary records', async () => {
+    it('should include non-summary records', async () => {
         const records: ReportRecord[] = [
             {
                 category: 'Summary',
@@ -51,7 +52,9 @@ describe('CsvFormatter', () => {
         ];
 
         await formatter.formatRecords(records, outputStream);
-        expect(output).toBe(`${KnownRecordTypes.TotalLintErrors},42\n`);
+        const result = JSON.parse(output);
+        
+        expect(result).toEqual(records);
     });
 
     it('should process multiple records correctly', async () => {
@@ -77,15 +80,16 @@ describe('CsvFormatter', () => {
         ];
 
         await formatter.formatRecords(records, outputStream);
-        expect(output).toBe(
-            `${KnownRecordTypes.TotalLintErrors},42\n` +
-            `${KnownRecordTypes.TotalLintErrors},10\n` +
-            `${KnownRecordTypes.TotalLintErrors},15\n`
-        );
+        const result = JSON.parse(output);
+        
+        expect(result).toEqual(records);
     });
 
     it('should handle empty record array', async () => {
         await formatter.formatRecords([], outputStream);
-        expect(output).toBe('');
+        
+        const result = JSON.parse(output);
+        
+        expect(result).toEqual([]);
     });
 });

@@ -23,7 +23,7 @@ const linterSeverityMap = {
  * @returns AsyncIterable that yields annotation records for each lint message (if includeMessages=true) 
  *          and summary records for total warnings and errors
  */
-export const sumMetricCounts = async function* (dataStream: AsyncIterable<EslintReportFileEntry> | EslintReportFileEntry[], includeMessages: boolean): AsyncIterable<ReportRecord> {
+export const processReportEntries = async function* (dataStream: AsyncIterable<EslintReportFileEntry> | EslintReportFileEntry[], includeMessages: boolean): AsyncIterable<ReportRecord> {
     let totalErrors = 0;
     let totalWarnings = 0;
 
