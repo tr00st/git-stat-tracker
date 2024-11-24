@@ -10,6 +10,8 @@ import * as gstDynamoDbStorer from './storers/dynamodb/cli.js';
 await yargs(hideBin(process.argv))
   .command(gstEslintProcessor)
   .command(gstDynamoDbStorer)
+  .completion()
+  .demandCommand(1, 'Please specify a command to run')
   .strict()
   .help("help", "Shows usage instructions")
   .parse();

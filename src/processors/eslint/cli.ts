@@ -11,7 +11,7 @@ import { FileWriter } from "../../lib/output/FileWriter.js";
 import StreamArray from "stream-json/streamers/StreamArray.js";
 import { TypedTransform } from "../../lib/util/TypedTransform.js";
 
-export const command = "eslint <inputFile>";
+export const command = "process eslint <inputFile>";
 export const describe = "parses the results from inputFile";
 
 export const builder = (yargs: Argv) => {

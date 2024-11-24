@@ -14,7 +14,7 @@
   "scripts": {
     "eslint": "eslint -f json -o artifacts/eslint-report.json",
     "build": "rollup -c",
-    "watch": "rollup --watch",
+    "watch": "rollup -c --watch",
     "clean": "rm -r dist/",
     "test": "vitest",
     "test:ci": "vitest --reporter=default --reporter=junit --outputFile=artifacts/junit.xml --coverage",
@@ -41,7 +41,7 @@
     "@types/yargs": "^17.0.33",
     "@vitest/coverage-v8": "^2.1.4",
     "eslint": "^9.14.0",
-    "rollup": "^4.27.1",
+    "rollup": "^4.27.4",
     "typescript": "^5.6.3",
     "typescript-eslint": "^8.13.0",
     "vite-tsconfig-paths": "^5.1.2",

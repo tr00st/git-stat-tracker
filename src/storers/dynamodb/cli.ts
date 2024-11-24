@@ -3,10 +3,10 @@ import { DynamoDBDocumentClient, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { createReadStream } from "fs";
 import { TypedTransform } from "lib/util/TypedTransform.js";
 import StreamArray from "stream-json/streamers/StreamArray.js";
-import { RecordType, ReportRecord } from "types/index.js";
+import { ReportRecord } from "types/index.js";
 import { Argv } from 'yargs'
 
-export const command = "store-dynamodb";
+export const command = "store dynamodb";
 export const describe = "stores results in an AWS DynamoDB database";
 
 interface Arguments {
@@ -47,7 +47,14 @@ export const builder = (yargs: Argv) => {
             defaultDescription: 'the timestamp when this script was',
             coerce: Date.parse
         })
-        .demandOption(['repositoryUri', 'commitHash'], 'Please provide repositoryUri and commitHash')
+        .option('tableName', {
+            alias: ['n'],
+            requiresArg: true,
+            type: 'string',
+            description: 'The name of the DynamoDB table to store the records in',
+        })
+        .demandOption(['repositoryUri', 'commitHash'], 'repositoryUri and commitHash must be specified')
+        .demandOption('tableName', 'tableName must be specified')
 };
 
 const readRecords = async function* (filename: string) : AsyncIterable<ReportRecord> {
@@ -75,7 +82,7 @@ export const handler = async ({inputFile : inputFiles, commitHash, repositoryUri
     const records : AsyncIterable<ReportRecord> = bulkReadRecords(inputFiles);
 
     const expressionAttributeNames : Record<string, string> = {};
-    const expressionAttributeValues : Record<string, any> = {
+    const expressionAttributeValues : Record<string, string | number> = {
         ":commitTimestamp": timestamp
     };
 
@@ -103,8 +110,6 @@ export const handler = async ({inputFile : inputFiles, commitHash, repositoryUri
         }
     }
 
-    const timingStart = Date.now();
-
     const storeCommand = new UpdateCommand({
         TableName: "tr00st-repo-stats",
         Key: {
@@ -119,7 +124,5 @@ export const handler = async ({inputFile : inputFiles, commitHash, repositoryUri
     });
 
     const response = await docClient.send(storeCommand);
-    const timingEnd = Date.now();
     console.log(response);
-    console.log(`Initial upsert took ${timingEnd - timingStart}ms`)
 };
