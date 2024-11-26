@@ -28,6 +28,9 @@ jobs:
       - name: Install app dependencies
         working-directory: .
         run: npm ci
+      - name: Build CLI Usage
+        working-directory: .
+        run: npm run build-cli-usage
       - name: Install website dependencies
         run: npm ci
       - name: Test build website

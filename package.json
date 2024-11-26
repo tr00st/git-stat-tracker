@@ -19,7 +19,8 @@
     "test": "vitest",
     "test:ci": "vitest --reporter=default --reporter=junit --outputFile=artifacts/junit.xml --coverage",
     "prestart": "npm run build",
-    "postinstall": "npm run build"
+    "postinstall": "npm run build",
+    "build-cli-usage": "mkdir -p website/docs/cli && npm run build && node dist/utils/buildHelp.js | tee website/docs/cli/cli.md"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.675.0",

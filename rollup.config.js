@@ -4,7 +4,7 @@ import commonjs from '@rollup/plugin-commonjs';
 import json from '@rollup/plugin-json';
 
 export default {
-  input: 'src/index.ts',
+  input: ['src/index.ts', 'src/utils/buildHelp.ts'],
   output: {
     dir: 'dist',
     format: 'es',
