@@ -114,7 +114,8 @@ const config: Config = {
         tsconfig: '../tsconfig.json',
         out: 'docs/api/',
         readme: 'none',
-        name: 'API Documentation'
+        name: 'API Documentation',
+        excludeExternals: true
       },
     ],
   ],
