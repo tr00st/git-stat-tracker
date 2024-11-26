@@ -34,6 +34,7 @@ warning. Even the project name will probably change. The purpose probably won't,
 * Install dependencies: `npm install`
 * Build: `npm run build`
 * Test: `npm run test`
+* GitHub Actions - you might want to install act to run them locally: https://nektosact.com/installation/index.html
 
 ## Release process
 
