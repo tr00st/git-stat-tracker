@@ -57,6 +57,13 @@ export const builder = (yargs: Argv) => {
         .demandOption('tableName', 'tableName must be specified')
 };
 
+/**
+ * Asynchronously reads ReportRecord instances from a given JSON file. Requires the file to be a single array of
+ * ReportRecord typed objects.
+ * @param filename Path of the file to be read.
+ * @returns An async iterable that yields ReportRecord instances as they are read.
+ * @async
+ */
 const readRecords = async function* (filename: string) : AsyncIterable<ReportRecord> {
     const fileStream = createReadStream(filename);
     const pipeline = fileStream
@@ -68,13 +75,21 @@ const readRecords = async function* (filename: string) : AsyncIterable<ReportRec
     }
 }
 
-const bulkReadRecords = async function* (files: string[]) {
+/**
+ * Reads ReportRecord instances from multiple files. Returns a single iterable containing all reports from all files, including
+ * any duplicates.
+ * @param files An array of filenames to be read.
+ * @returns An async iterable that yields ReportRecord instances from each file in the array.
+ * @async
+ */
+const bulkReadRecords = async function* (files: string[]) : AsyncIterable<ReportRecord> {
     for (const file of files) {
         for await (const record of readRecords(file)) {
             yield record;
         }
     }
 }
+
 export const handler = async ({inputFile : inputFiles, commitHash, repositoryUri, timestamp} : Arguments) : Promise<void> => {
     const client = new DynamoDBClient({});
     const docClient = DynamoDBDocumentClient.from(client);
