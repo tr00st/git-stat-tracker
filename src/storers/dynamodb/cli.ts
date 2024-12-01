@@ -1,10 +1,6 @@
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, UpdateCommand } from "@aws-sdk/lib-dynamodb";
-import { createReadStream } from "fs";
-import { TypedTransform } from "lib/util/TypedTransform.js";
-import StreamArray from "stream-json/streamers/StreamArray.js";
-import { ReportRecord } from "types/index.js";
 import { Argv } from 'yargs'
+import { DynamoDBRecordProcessor } from './DynamoDBRecordProcessor.js';
+import { RecordReader } from './RecordReader.js';
 
 export const command = "store dynamodb";
 export const describe = "stores results in an AWS DynamoDB database";
@@ -14,6 +10,7 @@ interface Arguments {
     repositoryUri: string;
     commitHash: string;
     timestamp: number;
+    tableName: string;
 }
 
 export const builder = (yargs: Argv) => {
@@ -41,11 +38,10 @@ export const builder = (yargs: Argv) => {
         .option('timestamp', {
             alias: ['t'],
             requiresArg: true,
-            type: 'string',
-            description: 'Commit (or other canonical) timestamp to store this record with. Will be used for time-series reporting.',
-            default: (new Date()).toISOString(),
-            defaultDescription: 'the timestamp when this script was',
-            coerce: Date.parse
+            type: 'number',
+            description: 'Commit (or other canonical) timestamp to store this record with. Will be used for time-series reporting. Defaults to a Unix timestamp in seconds.',
+            default: Math.floor((new Date()).getTime() / 1000),
+            defaultDescription: 'the timestamp when this script was'
         })
         .option('tableName', {
             alias: ['n'],
@@ -57,87 +53,27 @@ export const builder = (yargs: Argv) => {
         .demandOption('tableName', 'tableName must be specified')
 };
 
-/**
- * Asynchronously reads ReportRecord instances from a given JSON file. Requires the file to be a single array of
- * ReportRecord typed objects.
- * @param filename Path of the file to be read.
- * @returns An async iterable that yields ReportRecord instances as they are read.
- * @async
- */
-const readRecords = async function* (filename: string) : AsyncIterable<ReportRecord> {
-    const fileStream = createReadStream(filename);
-    const pipeline = fileStream
-        .pipe(StreamArray.withParser())
-        .pipe(new TypedTransform<ReportRecord>());
+export const handler = async ({
+    inputFile: inputFiles,
+    commitHash,
+    repositoryUri,
+    timestamp,
+    tableName
+}: Arguments): Promise<void> => {
+    try {
+        const processor = new DynamoDBRecordProcessor();
+        const records = RecordReader.bulkReadRecords(inputFiles);
 
-    for await (const record of pipeline) {
-        yield record;
+        const config = {
+            tableName,
+            repositoryUri,
+            commitHash,
+            timestamp
+        };
+
+        await processor.processRecords(records, config);
+    } catch (error) {
+        console.error('Failed to process records:', error);
+        throw error;
     }
-}
-
-/**
- * Reads ReportRecord instances from multiple files. Returns a single iterable containing all reports from all files, including
- * any duplicates.
- * @param files An array of filenames to be read.
- * @returns An async iterable that yields ReportRecord instances from each file in the array.
- * @async
- */
-const bulkReadRecords = async function* (files: string[]) : AsyncIterable<ReportRecord> {
-    for (const file of files) {
-        for await (const record of readRecords(file)) {
-            yield record;
-        }
-    }
-}
-
-export const handler = async ({inputFile : inputFiles, commitHash, repositoryUri, timestamp} : Arguments) : Promise<void> => {
-    const client = new DynamoDBClient({});
-    const docClient = DynamoDBDocumentClient.from(client);
-    
-    const records : AsyncIterable<ReportRecord> = bulkReadRecords(inputFiles);
-
-    const expressionAttributeNames : Record<string, string> = {};
-    const expressionAttributeValues : Record<string, string | number> = {
-        ":commitTimestamp": timestamp
-    };
-
-    const updateExpressionClauses = [];
-    const bannedAttributeNames = [
-        'commitHash',
-        'repository',
-        'commitTimestamp'
-    ];
-
-    let i : number = 1;
-    for await (const record of records) {
-        if (record.category == "Summary") {
-            const attributeName = record.type;
-            if (bannedAttributeNames.includes(attributeName)) {
-                console.warn(`Banned attribute name '${attributeName}' found, skipping`);
-            }
-            // We currently only support Summary types in here.
-            const attributeNameSubstitute = `#attribute${i}`;
-            const valueNameSubstitute = `:value${i}`;
-            expressionAttributeNames[attributeNameSubstitute] = attributeName;
-            expressionAttributeValues[valueNameSubstitute] = record.value;
-            updateExpressionClauses.push(`${attributeNameSubstitute} = ${valueNameSubstitute}`)
-            i++;
-        }
-    }
-
-    const storeCommand = new UpdateCommand({
-        TableName: "tr00st-repo-stats",
-        Key: {
-            commitHash: commitHash,
-            repository: repositoryUri
-        },
-        
-        UpdateExpression: `set commitTimestamp = :commitTimestamp, ${updateExpressionClauses.join(', ')}`,
-        ExpressionAttributeNames: expressionAttributeNames,
-        ExpressionAttributeValues: expressionAttributeValues,
-        ReturnValues: "ALL_NEW",
-    });
-
-    const response = await docClient.send(storeCommand);
-    console.log(response);
 };
