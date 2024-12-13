@@ -5,7 +5,7 @@
  */
 import yargs from 'yargs'
 import * as gstEslintProcessor from './processors/eslint/cli.js';
-import * as gstDynamoDbStorer from './stores/dynamodb/cli.js';
+import * as gstDynamoDbStore from './stores/dynamodb/cli.js';
 
 /**
  * Builds a yargs instance, adding known commands and enabling features as required.
@@ -15,7 +15,7 @@ import * as gstDynamoDbStorer from './stores/dynamodb/cli.js';
 const buildYargsInstance = (args: string | string[]) => {
     return yargs(args)
         .command(gstEslintProcessor)
-        .command(gstDynamoDbStorer)
+        .command(gstDynamoDbStore)
         .completion()
         .demandCommand(1, 'Please specify a command to run')
         .strict()
