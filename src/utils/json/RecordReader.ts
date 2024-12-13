@@ -1,4 +1,3 @@
-// src/storers/dynamodb/RecordReader.ts
 import { createReadStream } from "fs";
 import { TypedTransform } from "lib/util/TypedTransform.js";
 import StreamArray from "stream-json/streamers/StreamArray.js";

@@ -1,5 +1,5 @@
 import { Argv } from 'yargs'
-import { DynamoDBRecordProcessor } from './DynamoDBRecordProcessor.js';
+import { DynamoDBWriter } from './DynamoDBWriter.js';
 import { RecordReader } from '../../utils/json/RecordReader.js';
 
 export const command = "store dynamodb";
@@ -61,7 +61,7 @@ export const handler = async ({
     tableName
 }: Arguments): Promise<void> => {
     try {
-        const processor = new DynamoDBRecordProcessor();
+        const processor = new DynamoDBWriter();
         const records = RecordReader.bulkReadRecords(inputFiles);
 
         const config = {

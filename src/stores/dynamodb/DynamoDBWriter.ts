@@ -1,4 +1,3 @@
-// src/storers/dynamodb/DynamoDBRecordProcessor.ts
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { ReportRecord } from "types/index.js";
@@ -10,7 +9,7 @@ export interface DynamoDBStorageConfig {
     timestamp: number;
 }
 
-export class DynamoDBRecordProcessor {
+export class DynamoDBWriter {
     private readonly docClient: DynamoDBDocumentClient;
     private readonly bannedAttributeNames = [
         'commitHash',

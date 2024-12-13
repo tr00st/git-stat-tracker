@@ -5,7 +5,7 @@
  */
 import yargs from 'yargs'
 import * as gstEslintProcessor from './processors/eslint/cli.js';
-import * as gstDynamoDbStorer from './storers/dynamodb/cli.js';
+import * as gstDynamoDbStorer from './stores/dynamodb/cli.js';
 
 /**
  * Builds a yargs instance, adding known commands and enabling features as required.
