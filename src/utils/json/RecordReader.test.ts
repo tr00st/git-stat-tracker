@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { RecordReader } from './RecordReader.js';
 import { createReadStream, ReadStream } from 'fs';
-import { ReportRecord, SummaryRecord } from '../../types';
+import { ReportRecord, SummaryRecord } from '../../types/index.js';
 import { PassThrough } from 'stream';
 
 // Mock the fs module

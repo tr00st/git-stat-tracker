@@ -1,6 +1,6 @@
 import { Argv } from 'yargs'
 import { DynamoDBRecordProcessor } from './DynamoDBRecordProcessor.js';
-import { RecordReader } from './RecordReader.js';
+import { RecordReader } from '../../utils/json/RecordReader.js';
 
 export const command = "store dynamodb";
 export const describe = "stores results in an AWS DynamoDB database";
