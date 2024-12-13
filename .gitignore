@@ -133,3 +133,4 @@ dist
 .yarn/install-state.gz
 .pnp.*
 website/docs/cli/cli.md
+test.json
