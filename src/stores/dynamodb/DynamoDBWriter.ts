@@ -1,6 +1,7 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { ReportRecord } from "types/index.js";
+import { bannedAttributeNames } from "./utils.js";
 
 export interface DynamoDBStorageConfig {
     tableName: string;
@@ -11,11 +12,6 @@ export interface DynamoDBStorageConfig {
 
 export class DynamoDBWriter {
     private readonly docClient: DynamoDBDocumentClient;
-    private readonly bannedAttributeNames = [
-        'commitHash',
-        'repository',
-        'commitTimestamp'
-    ];
 
     constructor(client?: DynamoDBClient) {
         const dbClient = client || new DynamoDBClient({});
@@ -74,7 +70,7 @@ export class DynamoDBWriter {
         expressionAttributeValues: Record<string, string | number>
     ) {
         if (record.category == "Summary") {
-            if (this.bannedAttributeNames.includes(record.type)) {
+            if (bannedAttributeNames.includes(record.type)) {
                 console.warn(`Banned attribute name '${record.type}' found, skipping`);
                 return { attributeName: null, valueSubstitute: null };
             }
