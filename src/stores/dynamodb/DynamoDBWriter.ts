@@ -1,26 +1,25 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { ReportRecord } from "types/index.js";
-import { bannedAttributeNames } from "./utils.js";
+import { DynamoDBStorageConfig } from "./types.js";
+import { CommitMetadata, StoreWriter } from "../../types/stores.js";
+import { FieldMapper, PrefixFieldMapper } from "utils/fieldMapping.js";
 
-export interface DynamoDBStorageConfig {
-    tableName: string;
-    repositoryUri: string;
-    commitHash: string;
-    timestamp: number;
-}
-
-export class DynamoDBWriter {
+export class DynamoDBWriter implements StoreWriter {
     private readonly docClient: DynamoDBDocumentClient;
+    config: DynamoDBStorageConfig;
+    fieldMapper: FieldMapper;
 
-    constructor(client?: DynamoDBClient) {
+    constructor(config: DynamoDBStorageConfig, client?: DynamoDBClient) {
         const dbClient = client || new DynamoDBClient({});
         this.docClient = DynamoDBDocumentClient.from(dbClient);
+        this.fieldMapper = new PrefixFieldMapper(config.fieldPrefix);
+        this.config = config;
     }
 
-    public async processRecords(
+    public async storeRecords(
         records: AsyncIterable<ReportRecord>,
-        config: DynamoDBStorageConfig
+        config: CommitMetadata
     ) {
         const { expressionAttributeNames, expressionAttributeValues, updateExpressionClauses } = 
             await this.buildExpressions(records);
@@ -32,7 +31,7 @@ export class DynamoDBWriter {
             updateExpressionClauses
         );
 
-        return await this.docClient.send(command);
+        await this.docClient.send(command);
     }
 
     async buildExpressions(records: AsyncIterable<ReportRecord>) {
@@ -70,15 +69,10 @@ export class DynamoDBWriter {
         expressionAttributeValues: Record<string, string | number>
     ) {
         if (record.category == "Summary") {
-            if (bannedAttributeNames.includes(record.type)) {
-                console.warn(`Banned attribute name '${record.type}' found, skipping`);
-                return { attributeName: null, valueSubstitute: null };
-            }
-
             const attributeName = `#attribute${suffix}`;
             const valueSubstitute = `:value${suffix}`;
 
-            expressionAttributeNames[attributeName] = record.type;
+            expressionAttributeNames[attributeName] = this.fieldMapper.toStorageFieldName(record.type);
             expressionAttributeValues[valueSubstitute] = record.value;
 
             return { attributeName, valueSubstitute };
@@ -86,7 +80,7 @@ export class DynamoDBWriter {
     }
 
     createUpdateCommand(
-        config: DynamoDBStorageConfig,
+        config: CommitMetadata,
         expressionAttributeNames: Record<string, string>,
         expressionAttributeValues: Record<string, string | number>,
         updateExpressionClauses: string[]
@@ -94,7 +88,7 @@ export class DynamoDBWriter {
         const updateExpression = `SET commitTimestamp = :commitTimestamp, ${updateExpressionClauses.join(', ')}`;
         
         return new UpdateCommand({
-            TableName: config.tableName,
+            TableName: this.config.tableName,
             Key: {
                 commitHash: config.commitHash,
                 repository: config.repositoryUri

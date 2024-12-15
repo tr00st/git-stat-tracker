@@ -1,6 +1,7 @@
 import { Argv } from 'yargs'
 import { DynamoDBWriter } from './DynamoDBWriter.js';
 import { RecordReader } from '../../utils/json/RecordReader.js';
+import { CommitMetadata } from 'types/stores.js';
 
 export const command = "store dynamodb";
 export const describe = "stores results in an AWS DynamoDB database";
@@ -11,6 +12,7 @@ interface Arguments {
     commitHash: string;
     timestamp: number;
     tableName: string;
+    fieldPrefix: string;
 }
 
 export const builder = (yargs: Argv) => {
@@ -49,6 +51,13 @@ export const builder = (yargs: Argv) => {
             type: 'string',
             description: 'The name of the DynamoDB table to store the records in',
         })
+        .option('fieldPrefix', {
+            alias: ['p'],
+            requiresArg: true,
+            type: 'string',
+            description: 'The prefix to use for the fields in the DynamoDB table',
+            default: 'data_'
+        })
         .demandOption(['repositoryUri', 'commitHash'], 'repositoryUri and commitHash must be specified')
         .demandOption('tableName', 'tableName must be specified')
 };
@@ -58,20 +67,23 @@ export const handler = async ({
     commitHash,
     repositoryUri,
     timestamp,
-    tableName
+    tableName,
+    fieldPrefix
 }: Arguments): Promise<void> => {
     try {
-        const processor = new DynamoDBWriter();
+        const processor = new DynamoDBWriter({
+            tableName: tableName,
+            fieldPrefix: fieldPrefix
+        });
         const records = RecordReader.bulkReadRecords(inputFiles);
 
-        const config = {
-            tableName,
+        const config: CommitMetadata = {
             repositoryUri,
             commitHash,
             timestamp
         };
 
-        await processor.processRecords(records, config);
+        await processor.storeRecords(records, config);
     } catch (error) {
         console.error('Failed to process records:', error);
         throw error;

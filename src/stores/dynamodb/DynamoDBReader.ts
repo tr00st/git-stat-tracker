@@ -1,35 +1,32 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, QueryCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
+import { DynamoDBDocumentClient, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import { ReportRecord } from "types/index.js";
-import { bannedAttributeNames } from "./utils.js";
-
-export interface DynamoDBStorageConfig {
-    tableName: string;
-    repositoryUri: string;
-    commitHash: string;
-    timestamp: number;
-}
+import { DynamoDBStorageConfig } from "./types.js";
+import { FieldMapper, PrefixFieldMapper } from "utils/fieldMapping.js";
 
 export class DynamoDBWriter {
     private readonly docClient: DynamoDBDocumentClient;
+    private readonly config: DynamoDBStorageConfig;
+    private readonly fieldMapper: FieldMapper;
 
-    constructor(client?: DynamoDBClient) {
+    constructor(config: DynamoDBStorageConfig, client?: DynamoDBClient) {
+        this.config = config;
         const dbClient = client || new DynamoDBClient({});
         this.docClient = DynamoDBDocumentClient.from(dbClient);
+        this.fieldMapper = new PrefixFieldMapper(config.fieldPrefix);
     }
 
     public async * fetchRecordsByDate(
-        config: DynamoDBStorageConfig,
-        repository: string,
+        repositoryUri: string,
         from: Date = new Date(0, 1, 1),
         to: Date = new Date(9999, 1, 1)
     ) : AsyncIterable<ReportRecord> {
         const command = new QueryCommand({
-            TableName: config.tableName,
+            TableName: this.config.tableName,
             KeyConditionExpression: "repository = :repository",
             FilterExpression: "commitTimestamp BETWEEN :fromDate AND :toDate",
             ExpressionAttributeValues: {
-                ":repository": config.repositoryUri,
+                ":repository": repositoryUri,
                 ":fromDate": from.toISOString(),
                 ":toDate": to.toISOString()
             }
@@ -44,13 +41,11 @@ export class DynamoDBWriter {
 
             for (const item of output.Items) {
                 for (const [key, value] of Object.entries(item)) {
-                    if (!bannedAttributeNames.includes(key)) {
-                        yield {
-                            type: key,
-                            value: value,
-                            category: "Summary"
-                        } as ReportRecord;
-                    }
+                    yield {
+                        type: this.fieldMapper.fromStorageFieldName(key),
+                        value: value,
+                        category: "Summary"
+                    } as ReportRecord;
                 }
             }
 
